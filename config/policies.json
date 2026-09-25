@@ -4,7 +4,9 @@
       "handler": {
         "export": "AIGatewayAuthV2InboundPolicy",
         "module": "$import(@zuplo/runtime)",
-        "options": {}
+        "options": {
+          "authHeader": "x-api-key"
+        }
       },
       "name": "ai-gateway-auth-v2-inbound",
       "policyType": "ai-gateway-auth-v2"
@@ -17,6 +19,46 @@
       },
       "name": "ai-gateway-internal-only-inbound",
       "policyType": "ai-gateway-internal-only"
+    },
+    {
+      "handler": {
+        "export": "OpenIdJwtInboundPolicy",
+        "module": "$import(@zuplo/runtime)",
+        "options": {
+          "issuer": "$env(JWT_ISSUER)",
+          "audience": "$env(JWT_AUDIENCE)",
+          "jwkUrl": "$env(JWT_JWKS_URL)"
+        }
+      },
+      "name": "generic-jwt-auth-inbound",
+      "policyType": "open-id-jwt-auth-inbound"
+    },
+    {
+      "handler": {
+        "export": "default",
+        "module": "$import(./modules/set-user-context-inbound)",
+        "options": {}
+      },
+      "name": "generic-set-user-context-inbound",
+      "policyType": "custom-code-inbound"
+    },
+    {
+      "handler": {
+        "export": "default",
+        "module": "$import(./modules/prompt-tool-logger-inbound)",
+        "options": {}
+      },
+      "name": "baseball-prompt-tool-logger-inbound",
+      "policyType": "custom-code-inbound"
+    },
+    {
+      "handler": {
+        "export": "default",
+        "module": "$import(./modules/ssn-block-inbound)",
+        "options": {}
+      },
+      "name": "baseball-ssn-block-inbound",
+      "policyType": "custom-code-inbound"
     },
     {
       "handler": {
