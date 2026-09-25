@@ -26,7 +26,7 @@
         "module": "$import(@zuplo/runtime)",
         "options": {
           "issuer": "https://dev-l3ayzqncrfw3ta50.us.auth0.com/",
-          "audience": "baseball-ai-gateway",
+          "audience": "audience=baseball-ai-gateway",
           "jwkUrl": "https://dev-l3ayzqncrfw3ta50.us.auth0.com/.well-known/jwks.json"
         }
       },
