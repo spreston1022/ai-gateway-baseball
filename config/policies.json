@@ -25,9 +25,9 @@
         "export": "OpenIdJwtInboundPolicy",
         "module": "$import(@zuplo/runtime)",
         "options": {
-          "issuer": "$env(JWT_ISSUER)",
-          "audience": "$env(JWT_AUDIENCE)",
-          "jwkUrl": "$env(JWT_JWKS_URL)"
+          "issuer": "https://dev-l3ayzqncrfw3ta50.us.auth0.com/",
+          "audience": "baseball-ai-gateway",
+          "jwkUrl": "https://dev-l3ayzqncrfw3ta50.us.auth0.com/.well-known/jwks.json"
         }
       },
       "name": "generic-jwt-auth-inbound",
