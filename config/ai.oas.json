@@ -6,6 +6,32 @@
     "description": "A unified API gateway for multiple AI providers. OpenAI-compatible ops are served under /{app_id}/v1/*, AWS Bedrock Runtime ops under /{app_id}/model/{modelId}/{operation}; other paths under /{app_id} are rejected."
   },
   "paths": {
+    "/demo/usage": {
+      "get": {
+        "summary": "Look up today's/this hour's request and token usage for the caller",
+        "description": "Reads the verified JWT sub (via generic-jwt-auth-inbound + generic-set-user-context-inbound) and returns current request/token counts against baseball-usage-tracking-inbound's counters, for the baseball app's usage widget. Cost isn't reported here — see the app's native Budgets and Costs policy for cost-based limits.",
+        "operationId": "usage",
+        "responses": {
+          "200": {
+            "description": "Current usage and limits for this caller"
+          },
+          "401": {
+            "description": "Missing or invalid bearer token"
+          }
+        },
+        "x-zuplo-route": {
+          "corsPolicy": "none",
+          "handler": {
+            "export": "default",
+            "module": "$import(./modules/usage-handler)",
+            "options": {}
+          },
+          "policies": {
+            "inbound": ["generic-jwt-auth-inbound", "generic-set-user-context-inbound"]
+          }
+        }
+      }
+    },
     "/u/:app_id/(.*)": {
       "x-zuplo-path": {
         "pathMode": "url-pattern"

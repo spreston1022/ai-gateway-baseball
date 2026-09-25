@@ -62,6 +62,15 @@
     },
     {
       "handler": {
+        "export": "default",
+        "module": "$import(./modules/baseball-usage-tracking-inbound)",
+        "options": {}
+      },
+      "name": "baseball-usage-tracking-inbound",
+      "policyType": "custom-code-inbound"
+    },
+    {
+      "handler": {
         "export": "AIGatewayConfigurationLoaderV2InboundPolicy",
         "module": "$import(@zuplo/runtime)",
         "options": {
