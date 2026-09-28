@@ -5,7 +5,7 @@
 // numbers in sync with the Budgets and Costs rule in the Portal.
 export const REQUESTS_DAILY_LIMIT = 500;
 export const REQUESTS_HOURLY_LIMIT = 50;
-export const TOKENS_HOURLY_LIMIT = 100000;
+export const TOKENS_HOURLY_LIMIT = 1000000;
 export const DAILY_TTL_SECONDS = 86400;
 export const HOURLY_TTL_SECONDS = 3600;
 export const DAILY_CACHE_NAMESPACE = "baseball-usage-daily";
