@@ -27,8 +27,23 @@ export default async function (request: ZuploRequest, context: ZuploContext) {
 
   context.addResponseSendingHook(async (response) => {
     if (!response.ok) return response;
+    // Streamed responses aren't JSON; usage only arrives in the final SSE chunk.
+    if ((response.headers.get("content-type") ?? "").includes("text/event-stream")) return response;
     try {
       const data = await response.clone().json();
+      if (data?.usage) {
+        context.log.info(
+          {
+            sub,
+            email,
+            model: data.model,
+            promptTokens: data.usage.prompt_tokens,
+            completionTokens: data.usage.completion_tokens,
+            totalTokens: data.usage.total_tokens,
+          },
+          "AI Gateway response token usage"
+        );
+      }
       const toolCalls = data?.choices?.[0]?.message?.tool_calls;
       if (toolCalls?.length) {
         context.log.info(
