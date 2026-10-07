@@ -235,8 +235,6 @@
         "export": "AIGatewaySmartRouterInboundPolicy",
         "module": "$import(@zuplo/runtime)",
         "options": {
-          "classifierAppID": "",
-          "classifierModel": "openai/gpt-4o-mini",
           "modelsByComplexity": {
             "low": "openai/gpt-4o-mini",
             "medium": "openai/gpt-4o",
