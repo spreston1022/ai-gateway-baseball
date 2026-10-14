@@ -63,6 +63,15 @@
     {
       "handler": {
         "export": "default",
+        "module": "$import(./modules/god-block-inbound)",
+        "options": {}
+      },
+      "name": "baseball-god-block-inbound",
+      "policyType": "custom-code-inbound"
+    },
+    {
+      "handler": {
+        "export": "default",
         "module": "$import(./modules/baseball-usage-tracking-inbound)",
         "options": {}
       },
