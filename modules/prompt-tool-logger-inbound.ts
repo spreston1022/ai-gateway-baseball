@@ -7,6 +7,10 @@ export default async function (request: ZuploRequest, context: ZuploContext) {
   // Auth0 access tokens don't carry email by default; an Auth0 post-login
   // Action adds it under a namespaced claim (plain `email` as a fallback).
   const email = request.user?.data?.["https://baseball-ai-gateway/email"] ?? request.user?.data?.email;
+  // baseball.js issues this per conversation (bound to the user's session
+  // cookie) and also signs it into its MCP JWT, so it joins these logs with
+  // the MCP server's tool-call logs.
+  const conversationId = request.headers.get("x-conversation-id") ?? undefined;
 
   try {
     const body = await request.clone().json();
@@ -15,6 +19,7 @@ export default async function (request: ZuploRequest, context: ZuploContext) {
       {
         sub,
         email,
+        conversationId,
         model: body?.model,
         messageCount: body?.messages?.length ?? 0,
         prompt: lastUserMessage?.content,
@@ -36,6 +41,7 @@ export default async function (request: ZuploRequest, context: ZuploContext) {
           {
             sub,
             email,
+            conversationId,
             model: data.model,
             promptTokens: data.usage.prompt_tokens,
             completionTokens: data.usage.completion_tokens,
@@ -50,6 +56,7 @@ export default async function (request: ZuploRequest, context: ZuploContext) {
           {
             sub,
             email,
+            conversationId,
             tools: toolCalls.map((t: any) => ({ name: t.function?.name, arguments: t.function?.arguments })),
           },
           "AI Gateway response tool calls"
