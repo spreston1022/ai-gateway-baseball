@@ -1,5 +1,15 @@
 import { ZuploContext, ZuploRequest } from "@zuplo/runtime";
 
+// Text previews are capped so a large tool result (e.g. a full standings
+// table) or a long answer doesn't bloat the logs.
+const TOOL_RESULT_PREVIEW_CHARS = 500;
+const ANSWER_PREVIEW_CHARS = 1000;
+
+function preview(value: unknown, max: number): { chars: number; preview: string } {
+  const text = typeof value === "string" ? value : JSON.stringify(value ?? "");
+  return { chars: text.length, preview: text.length > max ? text.slice(0, max) + "…" : text };
+}
+
 export default async function (request: ZuploRequest, context: ZuploContext) {
   // Prefer the end-user sub copied by generic-set-user-context-inbound; fall
   // back to request.user in case this policy runs before it in the chain.
@@ -26,6 +36,22 @@ export default async function (request: ZuploRequest, context: ZuploContext) {
       },
       "AI Gateway request prompt"
     );
+    // Tool results this call sends forward: the role "tool" messages after
+    // the last assistant message, i.e. what the MCP tools just returned.
+    const messages: any[] = body?.messages ?? [];
+    const trailing: any[] = [];
+    for (let i = messages.length - 1; i >= 0 && messages[i]?.role === "tool"; i--) trailing.unshift(messages[i]);
+    if (trailing.length) {
+      context.log.info(
+        {
+          sub,
+          email,
+          conversationId,
+          toolResults: trailing.map((m) => ({ name: m.name, toolCallId: m.tool_call_id, ...preview(m.content, TOOL_RESULT_PREVIEW_CHARS) })),
+        },
+        "AI Gateway request tool results"
+      );
+    }
   } catch (e) {
     context.log.warn(`prompt-tool-logger: failed to read request body: ${String(e)}`);
   }
@@ -60,6 +86,20 @@ export default async function (request: ZuploRequest, context: ZuploContext) {
             tools: toolCalls.map((t: any) => ({ name: t.function?.name, arguments: t.function?.arguments })),
           },
           "AI Gateway response tool calls"
+        );
+      }
+      const choice = data?.choices?.[0];
+      if (typeof choice?.message?.content === "string" && choice.message.content.length) {
+        context.log.info(
+          {
+            sub,
+            email,
+            conversationId,
+            model: data.model,
+            finishReason: choice.finish_reason,
+            answer: preview(choice.message.content, ANSWER_PREVIEW_CHARS),
+          },
+          "AI Gateway response answer"
         );
       }
     } catch (e) {
