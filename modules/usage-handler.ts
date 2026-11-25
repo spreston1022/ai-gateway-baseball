@@ -28,6 +28,22 @@ export default async function (request: ZuploRequest, context: ZuploContext) {
     );
   }
 
+  // The baseball app calls this once at the end of every chat turn, so it is
+  // where the turn's conversation ID and semantic-cache result get logged
+  // (a cache hit makes no LLM call, so nothing else on the gateway sees it).
+  // Both headers are caller-supplied and only ever logged.
+  const conversationId = request.headers.get("x-conversation-id") ?? undefined;
+  const cacheHeader = request.headers.get("x-semantic-cache");
+  let semanticCache: unknown;
+  if (cacheHeader) {
+    try {
+      semanticCache = JSON.parse(decodeURIComponent(cacheHeader));
+    } catch {
+      semanticCache = { unparsed: cacheHeader.slice(0, 200) };
+    }
+  }
+  context.log.info({ sub: identity, conversationId, semanticCache }, "AI Gateway usage lookup");
+
   const dailyCache = new ZoneCache<DailyUsage>(DAILY_CACHE_NAMESPACE, context);
   const hourlyCache = new ZoneCache<HourlyUsage>(HOURLY_CACHE_NAMESPACE, context);
   const dailyRaw = await dailyCache.get(dailyCacheKey(identity));
