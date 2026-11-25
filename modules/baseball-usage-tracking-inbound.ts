@@ -20,6 +20,12 @@ export default async function (request: ZuploRequest, context: ZuploContext) {
   if (!identity) {
     return request;
   }
+  // Embeddings calls are the app's own plumbing (semantic cache lookup and
+  // tool trimming), not something the user asked a model for, so they count
+  // against neither the request nor the token figures shown to the user.
+  if (new URL(request.url).pathname.endsWith("/embeddings")) {
+    return request;
+  }
 
   const dailyCache = new ZoneCache<DailyUsage>(DAILY_CACHE_NAMESPACE, context);
   const hourlyCache = new ZoneCache<HourlyUsage>(HOURLY_CACHE_NAMESPACE, context);
